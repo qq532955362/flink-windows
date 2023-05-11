@@ -1,0 +1,31 @@
+{
+  "before": null,
+  "after": {
+    "id": 1,
+    "car_id": 0,
+    "speed": "FMs=",
+    "create_time": 1679025366182,
+    "update_time": 1679025366182,
+    "disabled": 0
+  },
+  "source": {
+    "version": "1.6.4.Final",
+    "connector": "mysql",
+    "name": "mysql_binlog_source",
+    "ts_ms": 0,
+    "snapshot": "false",
+    "db": "wtp",
+    "sequence": null,
+    "table": "car_speed",
+    "server_id": 0,
+    "gtid": null,
+    "file": "",
+    "pos": 0,
+    "row": 0,
+    "thread": null,
+    "query": null
+  },
+  "op": "r",
+  "ts_ms": 1679561969773,
+  "transaction": null
+}
