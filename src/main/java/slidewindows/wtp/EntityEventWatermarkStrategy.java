@@ -12,6 +12,8 @@ import org.apache.flink.api.common.eventtime.WatermarkOutput;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import slidewindows.wtp.domain.CarSpeed;
 
+import java.time.Duration;
+
 public class EntityEventWatermarkStrategy implements WatermarkStrategy<CarSpeed> {
 
 
@@ -45,5 +47,10 @@ public class EntityEventWatermarkStrategy implements WatermarkStrategy<CarSpeed>
             output.emitWatermark(new Watermark(maxTs - delayTime - 1L));
         }
 
+    }
+
+    @Override
+    public WatermarkStrategy<CarSpeed> withIdleness(Duration idleTimeout) {
+        return WatermarkStrategy.super.withIdleness(Duration.ofSeconds(10));
     }
 }

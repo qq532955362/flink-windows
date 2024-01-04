@@ -5,11 +5,18 @@ import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.evictors.Evictor;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.triggers.Trigger;
+import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.streaming.runtime.operators.windowing.TimestampedValue;
 import org.mapstruct.factory.Mappers;
 import slidewindows.wtp.debedium.DebeziumJsonRecordWithOutSchema;
 import slidewindows.wtp.debedium.DebeziumOptionTypeEnum;
+import slidewindows.wtp.domain.CarSpeed;
 import slidewindows.wtp.domain.converter.CarSpeedConverter;
 
 import java.util.Date;
@@ -67,7 +74,31 @@ public class SlideWindows {
                 }
         ).assignTimestampsAndWatermarks(new EntityEventWatermarkStrategy())
                 .setParallelism(1)
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(10)))
+                .windowAll(SlidingEventTimeWindows.of(Time.seconds(10), Time.minutes(1)))
+                .trigger(new Trigger<CarSpeed, TimeWindow>() {
+                    @Override
+                    public TriggerResult onElement(CarSpeed element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
+                        return null;
+                    }
+
+                    @Override
+                    public TriggerResult onProcessingTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
+                        return null;
+                    }
+
+                    @Override
+                    public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
+                        if (time > window.getEnd()) {
+                            return TriggerResult.FIRE_AND_PURGE;
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
+
+                    }
+                })
                 .reduce((pre, suf) -> {
                     if (pre.getSpeed().compareTo(suf.getSpeed()) >= 0) {
                         return pre;
